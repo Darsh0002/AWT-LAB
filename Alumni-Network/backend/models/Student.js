@@ -17,7 +17,6 @@ const studentSchema = new mongoose.Schema(
 
         enrollment_no: {
             type: String,
-            unique: true,
         },
 
         course: String,
@@ -50,6 +49,11 @@ const studentSchema = new mongoose.Schema(
         },
     },
     { timestamps: true }
+);
+
+studentSchema.index(
+  { enrollment_no: 1, instituteId: 1 },
+  { unique: true }
 );
 
 module.exports = mongoose.model("Student", studentSchema);

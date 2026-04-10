@@ -1,22 +1,13 @@
 const mongoose = require("mongoose");
 
-const jobSchema = new mongoose.Schema({
-  title: {
+const postSchema = new mongoose.Schema({
+  content: {
     type: String,
     required: true
   },
 
-  company: String,
+  image: String,
 
-  description: String,
-
-  location: String,
-
-  salary: String,
-
-  applyLink: String,
-
-  // who posted (admin/alumni)
   postedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
@@ -30,4 +21,4 @@ const jobSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-module.exports = mongoose.model("Job", jobSchema);
+module.exports = mongoose.model("Post", postSchema);

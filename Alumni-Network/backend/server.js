@@ -3,6 +3,10 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const cors = require("cors");
+const feedRoutes = require("./routes/feed");
+const jobRoutes = require("./routes/jobs");
+const postRoutes = require("./routes/posts");
+const eventRoutes = require("./routes/events");
 
 dotenv.config();
 
@@ -27,6 +31,11 @@ app.use("/api/admin", uploadExcelRoutes);
 
 const adminStudentRoutes = require("./routes/adminStudents");
 app.use("/api/admin", adminStudentRoutes);
+
+app.use("/api", feedRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/events", eventRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend running with DB");
