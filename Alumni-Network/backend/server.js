@@ -7,6 +7,8 @@ const feedRoutes = require("./routes/feed");
 const jobRoutes = require("./routes/jobs");
 const postRoutes = require("./routes/posts");
 const eventRoutes = require("./routes/events");
+const studentExtraRoutes = require("./routes/studentExtra");
+const instituteRoutes = require("./routes/institute");
 
 dotenv.config();
 
@@ -36,6 +38,8 @@ app.use("/api", feedRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/students", studentExtraRoutes);
+app.use("/api/institute", instituteRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend running with DB");
