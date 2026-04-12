@@ -126,6 +126,22 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const createPost = async (postData) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`${baseURL}/api/posts`, postData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      await fetchFeed();
+      return { success: true };
+    } catch (err) {
+      console.error("Post creation failed", err);
+      return { success: false, error: err.response?.data?.message || "Failed to create post" };
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -146,7 +162,8 @@ export const AppContextProvider = ({ children }) => {
         students,
         fetchInstituteStudents,
         institute,
-        fetchInstitute
+        fetchInstitute,
+        createPost
       }}
     >
       {children}

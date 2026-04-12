@@ -52,12 +52,25 @@ router.post("/", protect, async (req, res) => {
       });
     }
 
+    // Get author name and role
+    let authorName = "";
+    if (req.user.role === "admin") {
+      authorName = institute.instituteName;
+    } else {
+      const student = await Student.findOne({ userId: req.user.id });
+      authorName = student ? student.full_name : "Unknown Scholar";
+    }
+
     // Create post
     const post = await Post.create({
       content,
       image,
       postedBy: req.user.id,
-      instituteId: institute._id
+      instituteId: institute._id,
+      author: {
+        name: authorName,
+        role: req.user.role
+      }
     });
 
     res.status(201).json({

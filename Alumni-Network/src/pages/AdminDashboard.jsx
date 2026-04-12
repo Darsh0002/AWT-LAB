@@ -31,7 +31,13 @@ import {
   ExternalLink,
   Clock,
   Globe,
+  MessageSquare,
+  Send,
+  Sparkles,
+  FileText,
+  Image as ImageIcon,
 } from "lucide-react";
+import PostCard from "../components/PostCard";
 import {
   Pie,
   PieChart,
@@ -87,7 +93,17 @@ const AdminDashboard = () => {
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const { events: contextEvents, jobs, fetchFeed, students, fetchInstituteStudents, institute, fetchInstitute } = useContext(AppContext);
+  const {
+    events: contextEvents,
+    jobs,
+    fetchFeed,
+    students,
+    fetchInstituteStudents,
+    institute,
+    fetchInstitute,
+    posts,
+    createPost,
+  } = useContext(AppContext);
   const [loadingAlumni, setLoadingAlumni] = useState(true);
 
   const [showEventModal, setShowEventModal] = useState(false);
@@ -101,6 +117,10 @@ const AdminDashboard = () => {
 
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showStudentModal, setShowStudentModal] = useState(false);
+
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [postContent, setPostContent] = useState("");
+  const [isPosting, setIsPosting] = useState(false);
 
   const [departmentData, setDepartmentData] = useState([]);
   const [graduationTrends, setGraduationTrends] = useState([]);
@@ -205,11 +225,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const handlePostSubmit = async (e) => {
+    e.preventDefault();
+    if (!postContent.trim()) return;
+
+    setIsPosting(true);
+    const result = await createPost({ content: postContent });
+    setIsPosting(false);
+
+    if (result.success) {
+      toast.success("Post shared successfully!");
+      setPostContent("");
+      setShowPostModal(false);
+    } else {
+      toast.error(result.error);
+    }
+  };
+
   const navItems = [
     { id: "profile", label: "Profile", icon: Building2 },
     { id: "analytics", label: "Analytics", icon: LayoutDashboard },
     { id: "Directory", label: "Directory", icon: Users },
     { id: "events", label: "Events", icon: Calendar },
+    { id: "posts", label: "Feed", icon: MessageSquare },
   ];
 
   const pieColors = [
@@ -684,11 +722,50 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
         );
-      default:
+      case "posts":
         return (
-          <div className="py-20 text-center text-slate-400 italic font-medium">
-            Coming soon...
-          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-4xl mx-auto space-y-10"
+          >
+            {/* Create Post Action */}
+            <div
+              onClick={() => setShowPostModal(true)}
+              className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 flex items-center gap-6 group cursor-pointer hover:border-indigo-100 transition-all"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 transition-transform group-hover:scale-105">
+                <Plus size={28} />
+              </div>
+              <span className="text-slate-400 font-bold text-xl uppercase tracking-tight flex-grow">
+                Start an announcement...
+              </span>
+              <div className="flex gap-3">
+                <div className="p-4 rounded-xl hover:bg-slate-50 text-indigo-400">
+                  <ImageIcon size={24} />
+                </div>
+                <div className="p-4 rounded-xl hover:bg-slate-50 text-indigo-400">
+                  <Calendar size={24} />
+                </div>
+              </div>
+            </div>
+
+            {/* Content Feed */}
+            {posts && posts.length > 0 ? (
+              <div className="space-y-8">
+                {posts.map((post) => (
+                  <PostCard key={post._id || post.id} post={post} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-[3rem] p-32 text-center border-2 border-dashed border-slate-100 shadow-sm">
+                <Sparkles size={80} className="text-slate-100 mx-auto mb-10" />
+                <p className="text-slate-400 text-xl italic font-medium">
+                  The community feed is waiting for your story.
+                </p>
+              </div>
+            )}
+          </motion.div>
         );
     }
   };
@@ -1108,6 +1185,90 @@ const AdminDashboard = () => {
                     Publish Event
                   </button>
                 </form>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Post Creation Modal */}
+          {showPostModal && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowPostModal(false)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              />
+              <motion.div
+                variants={modalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+              >
+                <div className="p-10">
+                  <div className="flex justify-between items-center mb-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <Send size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-black text-slate-900 font-outfit uppercase tracking-tight leading-none">
+                          Institute Post
+                        </h3>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                          Official announcement
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowPostModal(false)}
+                      className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-500 transition-all"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handlePostSubmit} className="space-y-8">
+                    <textarea
+                      value={postContent}
+                      onChange={(e) => setPostContent(e.target.value)}
+                      required
+                      placeholder="Share an official milestone, announcement, or campus update..."
+                      className="w-full h-48 border-none focus:ring-0 text-xl font-medium placeholder:text-slate-300 resize-none italic"
+                    />
+
+                    <div className="flex items-center justify-between pt-8 border-t border-slate-50">
+                      <div className="flex gap-4 text-slate-400">
+                        <button
+                          type="button"
+                          className="p-4 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all"
+                        >
+                          <ImageIcon size={24} />
+                        </button>
+                        <button
+                          type="button"
+                          className="p-4 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all"
+                        >
+                          <FileText size={24} />
+                        </button>
+                        <button
+                          type="button"
+                          className="p-4 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all"
+                        >
+                          <Calendar size={24} />
+                        </button>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={!postContent.trim() || isPosting}
+                        className="px-12 py-5 bg-slate-950 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-indigo-600 disabled:opacity-20 disabled:hover:bg-slate-950 transition-all shadow-xl shadow-slate-200"
+                      >
+                        {isPosting ? "Publishing..." : "Publish Announcement"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </motion.div>
             </div>
           )}

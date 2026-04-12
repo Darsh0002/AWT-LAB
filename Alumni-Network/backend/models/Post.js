@@ -17,6 +17,11 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Institute",
     required: true
+  },
+
+  author: {
+    name: String,
+    role: String
   }
 
 }, { timestamps: true });
