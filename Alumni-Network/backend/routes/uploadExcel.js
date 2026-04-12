@@ -57,6 +57,7 @@ router.post("/upload-excel", protect, upload.single("file"), async (req, res) =>
             // Check if Student already exists
             const existingStudent = await Student.findOne({
                 enrollment_no: row.enrollment_no,
+                instituteId: institute._id,
             });
             if (existingStudent) {
                 skippedCount++;
