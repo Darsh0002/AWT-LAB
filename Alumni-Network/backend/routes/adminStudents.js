@@ -33,7 +33,7 @@ router.get("/students", protect, async (req, res) => {
     // Fetch students of this institute
     const students = await Student.find({
       instituteId: instituteId,
-    }).select("-password"); // 🔒 never send password
+    }).select("-password"); // never send password
 
     const formattedStudents = students.map((student) => {
       return {

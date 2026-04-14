@@ -14,7 +14,7 @@ router.get("/alumni", protect, async (req, res) => {
   try {
     let instituteId;
 
-    // 🏫 If admin
+    // If admin
     if (req.user.role === "admin") {
       const institute = await Institute.findOne({
         adminUser: req.user.id
@@ -27,7 +27,7 @@ router.get("/alumni", protect, async (req, res) => {
       instituteId = institute._id;
 
     } else {
-      // 👨‍🎓 student / alumni
+      // Student / alumni
       const student = await Student.findOne({
         userId: req.user.id
       });
@@ -39,10 +39,10 @@ router.get("/alumni", protect, async (req, res) => {
       instituteId = student.instituteId;
     }
 
-    // 🧠 Current year
+    // Current year
     const currentYear = new Date().getFullYear();
 
-    // 📚 Fetch alumni (passoutYear <= currentYear)
+    // Fetch alumni (passoutYear <= currentYear)
     const alumni = await Student.find({
       instituteId,
       passoutYear: { $lte: currentYear }
